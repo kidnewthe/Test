@@ -71,42 +71,13 @@ namespace StringFormatUtility
 		}
 	};
 
-	template<typename T>
-	bool GeneralValue2String(char* dest, int& pos, int size, const char* fmt, T t, int argIndex)
-	{
-		return _impl_for_format_check<T>::format(dest, pos, size, fmt, t, argIndex);
-	}
 
-	template<typename T,int k>
-	struct _impl_for_64
-	{
-		static inline bool format(char* dest, int& pos, int size, const char* fmt, T t,int argindex)
-		{
-			return GeneralValue2String(dest, pos, size, fmt, t, argindex);
-		}
-	};
 
-	template<typename T>
-	struct _impl_for_64<T*,8>
-	{
-		static inline bool format(char* dest, int& pos, int size, const char* fmt, T* t, int argindex)
-		{
-			return GeneralValue2String(dest, pos, size, fmt, t, argindex);
-		}
-	};
-	template<>
-	struct _impl_for_64<double, 8>
-	{
-		static inline bool format(char* dest, int& pos, int size, const char* fmt, double t, int argindex)
-		{
-			return GeneralValue2String(dest, pos, size, fmt, t, argindex);
-		}
-	};
 
 	template<typename T>
 	bool Value2String(char* dest, int&pos, int size, const char* fmt,T t, int argindex)
 	{
-		return _impl_for_64<T, sizeof(T)>::format(dest, pos, size, fmt, t, argindex);
+		return _impl_for_format_check<T>::format(dest, pos, size, fmt, t, argindex);
 	}
 }
 class StringParser
