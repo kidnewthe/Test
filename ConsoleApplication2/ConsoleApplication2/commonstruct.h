@@ -1,6 +1,7 @@
 #pragma once
 #include<string.h>
 #include<cstdio>
+#include<type_traits>
 #define STRING_PARSER_FMT_TEMP 4096
 #define STRING_PARSER_BUFF_TEMP 4096
 #define LOG_BUFF_TEMP 4096
@@ -22,7 +23,7 @@ namespace StringFormatUtility
 		return (r >= 0 ? true : false);
 	}
 
-	template<typename T>
+	template<typename T,bool V = std::is_pointer<T>::value>
 	struct _impl_for_format_check
 	{
 		enum{ value = 0 };
@@ -48,10 +49,10 @@ namespace StringFormatUtility
 
 
 	template<typename T>
-	struct _impl_for_format_check<T*>
+	struct _impl_for_format_check<T,true>
 	{
 		enum{ value = 1};
-		static inline bool format(char* dest, int&pos, int size, const char* fmt, T* t, int argIndex)
+		static inline bool format(char* dest, int&pos, int size, const char* fmt, T t, int argIndex)
 		{
 			int len = strlen(fmt);
 			if (len <= 0)
@@ -107,7 +108,6 @@ public:
 
 		_Format(args...);
 	}
-
 	StringParser(char* buf, int size, const char* fmt); 
 
 
