@@ -23,62 +23,40 @@ namespace StringFormatUtility
 		return (r >= 0 ? true : false);
 	}
 
-	template<typename T,bool V = std::is_pointer<T>::value>
-	struct _impl_for_format_check
-	{
-		enum{ value = 0 };
-		static inline bool format(char* dest, int&pos, int size, const char* fmt, T t, int argIndex)
-		{
-			int len = strlen(fmt);
-			if (len <= 0)
-			{
-				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,unexpected_value ", argIndex);
-				return bRet;
-			}
-			else if (fmt[len - 1] == 's' || fmt[len - 1] == 'S' || fmt[len - 1] == 'n' || fmt[len - 1] == 'p')
-			{
-				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,value_as_pointer ", argIndex);
-				return bRet;
-			}
-			else
-			{
-				return BasicValue2String(dest, pos, size, fmt, t);
-			}
-		}
-	};
-
-
-	template<typename T>
-	struct _impl_for_format_check<T,true>
-	{
-		enum{ value = 1};
-		static inline bool format(char* dest, int&pos, int size, const char* fmt, T t, int argIndex)
-		{
-			int len = strlen(fmt);
-			if (len <= 0)
-			{
-				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,unexpected_pointer ", argIndex);
-				return bRet;
-			}
-			else if (fmt[len - 1] != 's' && fmt[len - 1] != 'S' && fmt[len - 1] != 'n' && fmt[len - 1] != 'p')
-			{
-				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,pointer_as_value ", argIndex);
-				return bRet;
-			}
-			else
-			{
-				return BasicValue2String(dest, pos, size, fmt, t);
-			}
-		}
-	};
-
-
-
 
 	template<typename T>
 	bool Value2String(char* dest, int&pos, int size, const char* fmt,T t, int argindex)
 	{
-		return _impl_for_format_check<T>::format(dest, pos, size, fmt, t, argindex);
+		int len = strlen(fmt);
+		if (std::is_pointer<T>::value)
+		{
+			if (len <= 0)
+			{
+				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,unexpected_pointer ", argindex);
+				return bRet;
+			}
+			else if (fmt[len - 1] != 's' && fmt[len - 1] != 'S' && fmt[len - 1] != 'n' && fmt[len - 1] != 'p')
+			{
+				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,pointer_as_value ", argindex);
+				return bRet;
+			}
+		}
+		else
+		{
+			if (len <= 0)
+			{
+				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,unexpected_value ", argindex);
+				return bRet;
+			}
+			else if (fmt[len - 1] == 's' || fmt[len - 1] == 'S' || fmt[len - 1] == 'n' || fmt[len - 1] == 'p')
+			{
+				bool bRet = BasicValue2String(dest, pos, size, "@format:%d,value_as_pointer ", argindex);
+				return bRet;
+			}
+
+		}
+
+		return BasicValue2String(dest, pos, size, fmt, t);
 	}
 }
 class StringParser
